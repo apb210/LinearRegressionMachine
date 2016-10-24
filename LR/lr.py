@@ -4,6 +4,7 @@ import numpy as np
 from random import randint
 import math as mth
 from sklearn import linear_model
+from statsmodels.stats.proportion import samplesize_confint_proportion
 
 #For comparison with Least Square fit using Sklearn
 reg = linear_model.LinearRegression()
@@ -78,28 +79,40 @@ A0 = np.ones(trainX[0].count())  #Count the number of rows one has to input
 A0t = np.ones(testX[0].count())
 
 # The column indices get messed up. In the sense upon addition there is an extra 0th column
-# Resetting the column indices 
+ 
 colindices = range(0,len(trainX.columns) + 1)
 colindicest = range(0,len(testX.columns) + 1)
 
-
+# Inserting the Zeroth Column
 trainX.insert(loc = 0 ,column = 0 , value = A0, allow_duplicates=True)
 testX.insert(loc = 0, column = 0, value = A0t, allow_duplicates=True)
 
+# Resetting the column indices
 trainX.columns = [colindices]
 testX.columns = [colindicest]
 
+# Taking the transpose for dot product 
 trainY = trainY.transpose()
 trainX = trainX.transpose()
+
 
 testY = testY.transpose()
 testX = testX.transpose()
 
-
+# The coefficient vector
 A = 0.1*np.random.rand(trainX[0].count())
 
 Er = 10.0
 count = 0
+
+# This is the Stochastic Gradient Descent algorithm
+#===============================================================================
+# 
+# i loops over random 
+# j loops over the number of coefficients
+# A = A + alpha * (ytrain(j-th sample) - trainX[i-th coefficeint][j - th sample])
+#===============================================================================
+
 print len(trainX)
 while (Er > 0.5):
     count = count + 1
@@ -112,6 +125,7 @@ while (Er > 0.5):
      
         A[i] = A[i] + (alpha / len(trainX)) * Er 
     
+    # The error term
     Er = mth.sqrt((trainY[0] - trainX[0].dot(A))**2)
     if (count % 1000 == 0):
         print "Error =", Er
@@ -126,6 +140,8 @@ xdata = []
 Err = []
 SQE = 0.0
 SQESkl = 0.0
+
+# Checking our solution vector with the training set. 
 for i in range(0, len(testX.columns)):
     yPred.append(testX[i].dot(A))
     xdata.append(i)
@@ -134,10 +150,8 @@ for i in range(0, len(testX.columns)):
     
 RMS = mth.sqrt(SQE / len(xdata))
 
+# Plotting
 plt.plot(xdata,yPred,'ro',xdata,testY,'g^',xindex, yPredSkl,'bs')
-print RMS
-
-#plt.plot(yPred,testY,'gs')
 plt.show()
 
 
