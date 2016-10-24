@@ -141,7 +141,7 @@ Err = []
 SQE = 0.0
 SQESkl = 0.0
 
-# Checking our solution vector with the training set. 
+# Checking our solution vector with the training set.  
 for i in range(0, len(testX.columns)):
     yPred.append(testX[i].dot(A))
     xdata.append(i)
